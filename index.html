@@ -7,50 +7,37 @@
 </head>
 <body>
     <h1>AlphaFoldXploR Web App</h1>
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="fileInput" accept=".zip" required>
-        <button type="button" onclick="uploadFile()">Cargar Archivo</button>
-    </form>
+    <input type="file" id="fileInput" accept=".zip" required>
+    <button onclick="processZip()">Cargar y Procesar Archivo</button>
 
     <script>
-        function uploadFile() {
+        function processZip() {
             var fileInput = document.getElementById('fileInput');
             var file = fileInput.files[0];
 
             if (file) {
-                var formData = new FormData();
-                formData.append('file', file);
+                var reader = new FileReader();
 
-                fetch('/', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(message => {
-                    alert(message);
-                    createDownloadLinks();
-                })
-                .catch(error => console.error('Error:', error));
+                reader.onload = function (e) {
+                    var arrayBuffer = e.target.result;
+                    var blob = new Blob([arrayBuffer]);
+
+                    var formData = new FormData();
+                    formData.append('file', blob, file.name);
+
+                    fetch('https://verinikita.github.io/api/', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(message => {
+                        alert(message);
+                    })
+                    .catch(error => console.error('Error:', error));
+                };
+
+                reader.readAsArrayBuffer(file);
             }
-        }
-
-        function createDownloadLinks() {
-            var downloadLinks = document.createElement('div');
-            downloadLinks.innerHTML = '<h2>Descargar Archivos:</h2>';
-            
-            var jsonLink = document.createElement('a');
-            jsonLink.href = '/archivos_json/archivo.json';
-            jsonLink.download = 'archivo.json';
-            jsonLink.textContent = 'Descargar Archivo JSON';
-            downloadLinks.appendChild(jsonLink);
-            
-            var pdbLink = document.createElement('a');
-            pdbLink.href = '/archivos_pdb/archivo.pdb';
-            pdbLink.download = 'archivo.pdb';
-            pdbLink.textContent = 'Descargar Archivo PDB';
-            downloadLinks.appendChild(pdbLink);
-
-            document.body.appendChild(downloadLinks);
         }
     </script>
 </body>
