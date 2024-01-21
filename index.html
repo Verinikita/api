@@ -25,19 +25,31 @@
                     var formData = new FormData();
                     formData.append('file', blob, file.name);
 
-                    fetch('https://verinikita.github.io/api/', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.text())
-                    .then(message => {
-                        alert(message);
-                    })
-                    .catch(error => console.error('Error:', error));
+                    fetchAndProcessZip(formData);
+                };
+
+                reader.onerror = function (e) {
+                    console.error('Error al leer el archivo:', e.target.error);
                 };
 
                 reader.readAsArrayBuffer(file);
             }
+        }
+
+        function fetchAndProcessZip(formData) {
+            fetch('https://verinikita.github.io/api/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                // Aquí puedes agregar lógica adicional si es necesario
+            })
+            .catch(error => {
+                console.error('Error durante la solicitud fetch:', error);
+                alert('Error durante la solicitud fetch. Consulta la consola para obtener más detalles.');
+            });
         }
     </script>
 </body>
